@@ -6,8 +6,9 @@ const path = require('path');
 const app = express();
 app.use(cors());
 
-// Update this to the full path where yt-dlp.exe is installed
-const ytDlpPath = 'C:\\Users\\packr\\scoop\\persist\\python\\scripts\\yt-dlp.exe';
+// Path to the yt-dlp binary. Defaults to whatever is in the PATH but can be
+// overridden with the YT_DLP_PATH environment variable.
+const ytDlpPath = process.env.YT_DLP_PATH || 'yt-dlp';
 
 function sanitizeFilename(name) {
   return name.replace(/[\\/?%*:|"<>]/g, '');
