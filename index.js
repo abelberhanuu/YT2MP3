@@ -5,13 +5,10 @@ const { spawn } = require('child_process');
 const app = express();
 app.use(cors());
 
-// Path to the yt-dlp binary. Defaults to whatever is in the PATH but can be
-// overridden with the YT_DLP_PATH environment variable.
-const ytDlpPath = process.env.YT_DLP_PATH || 'yt-dlp';
+// Use absolute path to yt-dlp.exe
+const ytDlpPath = 'C:\\Users\\packr\\scoop\\persist\\python\\scripts\\yt-dlp.exe';
 
-// Common options passed to yt-dlp for all downloads. These try to avoid
-// geographic restrictions and IPv6 issues that can sometimes lead to 403
-// errors when fetching videos.
+// Optional flags to help with region locks and IPv6
 const commonYtDlpArgs = ['--geo-bypass', '--force-ipv4'];
 
 const PORT = process.env.PORT || 3000;
@@ -28,20 +25,12 @@ app.get('/download/mp4', (req, res) => {
   let title = '';
   let titleErr = '';
 
+  titleProcess.stdout.on('data', data => title += data.toString());
+  titleProcess.stderr.on('data', data => titleErr += data.toString());
+
   titleProcess.on('error', err => {
     console.error('yt-dlp spawn error:', err);
-    if (!res.headersSent) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  titleProcess.stdout.on('data', data => {
-    title += data.toString();
-  });
-
-  titleProcess.stderr.on('data', data => {
-    titleErr += data.toString();
-    console.error(`yt-dlp title error: ${data.toString()}`);
+    if (!res.headersSent) res.status(500).json({ error: err.message });
   });
 
   titleProcess.on('close', code => {
@@ -61,17 +50,14 @@ app.get('/download/mp4', (req, res) => {
     ]);
 
     let downloadErr = '';
+    download.stderr.on('data', data => downloadErr += data.toString());
     download.on('error', err => {
       console.error('yt-dlp spawn error:', err);
-      if (!res.headersSent) {
-        res.status(500).json({ error: err.message });
-      }
+      if (!res.headersSent) res.status(500).json({ error: err.message });
     });
+
     download.stdout.pipe(res);
-    download.stderr.on('data', data => {
-      downloadErr += data.toString();
-      console.error(`yt-dlp download error: ${data.toString()}`);
-    });
+
     download.on('close', code => {
       if (code !== 0 && !res.headersSent) {
         res.status(500).json({ error: downloadErr.trim() || 'Failed to download video' });
@@ -86,21 +72,14 @@ app.get('/download/mp3', (req, res) => {
 
   const titleProcess = spawn(ytDlpPath, [...commonYtDlpArgs, '--get-title', url]);
   let title = '';
-
-  titleProcess.stdout.on('data', data => {
-    title += data.toString();
-  });
-
   let titleErr = '';
+
+  titleProcess.stdout.on('data', data => title += data.toString());
+  titleProcess.stderr.on('data', data => titleErr += data.toString());
+
   titleProcess.on('error', err => {
     console.error('yt-dlp spawn error:', err);
-    if (!res.headersSent) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-  titleProcess.stderr.on('data', data => {
-    titleErr += data.toString();
-    console.error(`yt-dlp title error: ${data.toString()}`);
+    if (!res.headersSent) res.status(500).json({ error: err.message });
   });
 
   titleProcess.on('close', code => {
@@ -123,19 +102,14 @@ app.get('/download/mp3', (req, res) => {
     ]);
 
     let downloadErr = '';
-
+    download.stderr.on('data', data => downloadErr += data.toString());
     download.on('error', err => {
       console.error('yt-dlp spawn error:', err);
-      if (!res.headersSent) {
-        res.status(500).json({ error: err.message });
-      }
+      if (!res.headersSent) res.status(500).json({ error: err.message });
     });
 
     download.stdout.pipe(res);
-    download.stderr.on('data', data => {
-      downloadErr += data.toString();
-      console.error(`yt-dlp download error: ${data.toString()}`);
-    });
+
     download.on('close', code => {
       if (code !== 0 && !res.headersSent) {
         res.status(500).json({ error: downloadErr.trim() || 'Failed to download audio' });
