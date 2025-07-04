@@ -1,22 +1,28 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 
-// Use absolute path to yt-dlp.exe
+// Serve the frontend HTML
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Absolute path to yt-dlp.exe
 const ytDlpPath = 'C:\\Users\\packr\\scoop\\persist\\python\\scripts\\yt-dlp.exe';
 
-// Optional flags to help with region locks and IPv6
+// Common flags to help with network/geolocation issues
 const commonYtDlpArgs = ['--geo-bypass', '--force-ipv4'];
 
 const PORT = process.env.PORT || 3000;
 
+// Sanitize file names for Windows
 function sanitizeFilename(name) {
   return name.replace(/[\\/?%*:|"<>]/g, '');
 }
 
+// --- MP4 Download Route ---
 app.get('/download/mp4', (req, res) => {
   const url = req.query.url;
   if (!url) return res.status(400).json({ error: 'Missing YouTube URL' });
@@ -57,7 +63,6 @@ app.get('/download/mp4', (req, res) => {
     });
 
     download.stdout.pipe(res);
-
     download.on('close', code => {
       if (code !== 0 && !res.headersSent) {
         res.status(500).json({ error: downloadErr.trim() || 'Failed to download video' });
@@ -66,6 +71,7 @@ app.get('/download/mp4', (req, res) => {
   });
 });
 
+// --- MP3 Download Route ---
 app.get('/download/mp3', (req, res) => {
   const url = req.query.url;
   if (!url) return res.status(400).json({ error: 'Missing YouTube URL' });
@@ -109,7 +115,6 @@ app.get('/download/mp3', (req, res) => {
     });
 
     download.stdout.pipe(res);
-
     download.on('close', code => {
       if (code !== 0 && !res.headersSent) {
         res.status(500).json({ error: downloadErr.trim() || 'Failed to download audio' });
@@ -118,6 +123,7 @@ app.get('/download/mp3', (req, res) => {
   });
 });
 
+// --- Start the Server ---
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`✅ Server is running at http://localhost:${PORT}`);
 });
