@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YT2MP3</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #1db954;
+    }
+
+    input {
+      width: 90%;
+      max-width: 500px;
+      padding: 15px;
+      font-size: 1rem;
+      border-radius: 30px;
+      border: none;
+      outline: none;
+      margin-bottom: 20px;
+      background-color: #282828;
+      color: white;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      background-color: #3c3c3c;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: 0.3s;
+      background-color: #1db954;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #1ed760;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎧 YT2MP3 / MP4 Converter</h1>
+
+  <input type="text" id="yturl" placeholder="Paste YouTube URL..." />
+
+  <div class="buttons">
+    <button onclick="download('mp3')">Download MP3</button>
+    <button onclick="download('mp4')">Download MP4</button>
+  </div>
+
+  <footer>Powered by yt-dlp + Node.js</footer>
+
+  <script>
+    function download(type) {
+      const url = document.getElementById("yturl").value;
+      if (!url) {
+        alert("Please enter a YouTube URL.");
+        return;
+      }
+
+      const endpoint = `http://localhost:3000/download/${type}?url=${encodeURIComponent(url)}`;
+      window.location.href = endpoint;
+    }
+  </script>
+</body>
+</html>
