@@ -28,6 +28,7 @@ app.get('/download/mp4', (req, res) => {
 
     title = sanitizeFilename(title.trim());
     res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
+    res.header('Content-Type', 'video/mp4');
 
     const download = spawn('yt-dlp', ['-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4', '-o', '-', url]);
     download.stdout.pipe(res);
@@ -58,6 +59,7 @@ app.get('/download/mp3', (req, res) => {
 
     title = sanitizeFilename(title.trim());
     res.header('Content-Disposition', `attachment; filename="${title}.mp3"`);
+    res.header('Content-Type', 'audio/mpeg');
 
     const download = spawn('yt-dlp', [
       '--no-playlist',

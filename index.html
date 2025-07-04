@@ -94,7 +94,29 @@
       }
 
       const endpoint = `http://localhost:3000/download/${type}?url=${encodeURIComponent(url)}`;
-      window.location.href = endpoint;
+
+      fetch(endpoint).then(async (response) => {
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({ error: 'Download failed' }));
+          throw new Error(err.error || 'Download failed');
+        }
+
+        const blob = await response.blob();
+        let filename = `download.${type}`;
+        const disp = response.headers.get('Content-Disposition');
+        if (disp) {
+          const match = disp.match(/filename="?([^";]+)"?/);
+          if (match) filename = match[1];
+        }
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        link.remove();
+      }).catch(err => alert(err.message));
     }
   </script>
 </body>
