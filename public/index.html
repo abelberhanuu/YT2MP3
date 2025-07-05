@@ -86,6 +86,8 @@
   <footer>Powered by yt-dlp + Node.js</footer>
 
   <script>
+    const backendURL = 'https://youtube2mp3mp4.netlify.app'; // ← change this to your actual deployed backend URL
+
     function download(type) {
       const url = document.getElementById("yturl").value;
       if (!url) {
@@ -93,7 +95,7 @@
         return;
       }
 
-      const endpoint = `http://localhost:3000/download/${type}?url=${encodeURIComponent(url)}`;
+      const endpoint = `${backendURL}/download/${type}?url=${encodeURIComponent(url)}`;
 
       fetch(endpoint).then(async (response) => {
         if (!response.ok) {
