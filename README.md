@@ -12,6 +12,6 @@ Simple Node.js application to download YouTube videos as MP3 or MP4 using `yt-dl
    ```bash
    npm start
    ```
-   The application will run on [http://localhost:3000](http://localhost:3000).
+   The application will run on local host
 
 If the page fails to load ("Cannot GET /") ensure the server has started without errors and that the dependencies are installed.
